@@ -328,8 +328,8 @@ async function main() {
   console.log('🌱 Seeding database...')
 
   // Create admin user
-  const { hashSync } = await import('argon2')
-  const passwordHash = await hashSync('Admin1234!')
+  const { hash } = await import('bcryptjs')
+  const passwordHash = await hash('Admin1234!', 12)
 
   await prisma.user.upsert({
     where: { email: 'admin@dealer.pl' },

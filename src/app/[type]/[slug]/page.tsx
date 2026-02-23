@@ -97,7 +97,7 @@ export default async function VehiclePage({ params }: PageProps) {
               <h2 className="font-semibold text-gray-900 mb-4">Dane techniczne</h2>
               <dl className="grid grid-cols-2 sm:grid-cols-3 gap-y-3 gap-x-4">
                 {SPEC_LABELS.map(({ key, label, format }) => {
-                  const val = (v as Record<string, unknown>)[key]
+                  const val = (v as unknown as Record<string, unknown>)[key]
                   if (!val) return null
                   return (
                     <div key={key}>

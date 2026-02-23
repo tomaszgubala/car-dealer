@@ -148,7 +148,7 @@ export function ListingFilters({
       const type = searchParams.get('type')
       if (type) params.set('type', type)
 
-      for (const [key, val] of data.entries()) {
+      for (const [key, val] of Array.from(data.entries())) {
         if (val && String(val).trim()) params.append(key, String(val))
       }
       params.set('page', '1')
@@ -160,7 +160,7 @@ export function ListingFilters({
     [pathname, router, searchParams]
   )
 
-  const hasActiveFilters = [...searchParams.entries()].some(
+  const hasActiveFilters = Array.from(searchParams.entries()).some(
     ([k]) => !['type', 'page', 'sort'].includes(k)
   )
 

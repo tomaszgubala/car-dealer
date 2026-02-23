@@ -1,3 +1,4 @@
+import 'server-only'
 import NextAuth from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
 import { PrismaAdapter } from '@auth/prisma-adapter'
@@ -19,7 +20,8 @@ declare module 'next-auth' {
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: PrismaAdapter(prisma) as ReturnType<typeof PrismaAdapter>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  adapter: PrismaAdapter(prisma) as any,
   session: { strategy: 'jwt' },
   providers: [
     Credentials({
@@ -40,8 +42,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         if (!user?.password || !user.active) return null
 
-        const { verify } = await import('argon2')
-        const valid = await verify(user.password, parsed.data.password)
+        const { compare } = await import('bcryptjs')
+        const valid = await compare(parsed.data.password, user.password)
         if (!valid) return null
 
         return {

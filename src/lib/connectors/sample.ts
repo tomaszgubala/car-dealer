@@ -10,6 +10,7 @@
  */
 
 import type { Connector, ConnectorResult } from './base'
+import type { ConnectorVehicle } from '@/types'
 import { validateConnectorVehicle } from './base'
 
 // Mock external API response shape (replace with your actual API)
@@ -67,7 +68,7 @@ export class SampleExternalAPIConnector implements Connector {
   private apiKey = process.env.SAMPLE_API_KEY || ''
 
   async fetch(): Promise<ConnectorResult> {
-    const vehicles = []
+    const vehicles: ConnectorVehicle[] = []
     const errors: string[] = []
 
     try {
@@ -90,7 +91,7 @@ export class SampleExternalAPIConnector implements Connector {
           continue
         }
 
-        vehicles.push(data)
+        if (data) vehicles.push(data)
       }
     } catch (err) {
       errors.push(`Fetch error: ${err instanceof Error ? err.message : String(err)}`)
