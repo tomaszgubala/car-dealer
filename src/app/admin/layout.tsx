@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import { auth } from '@/lib/auth'
-import { redirect } from 'next/navigation'
 import { AdminSidebar } from '@/components/admin/sidebar'
 
 export const metadata: Metadata = {
@@ -11,8 +10,9 @@ export const metadata: Metadata = {
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await auth()
 
+  // Strona logowania - renderuj bez sidebara, bez redirecta
   if (!session?.user) {
-    redirect('/admin/login')
+    return <>{children}</>
   }
 
   return (
