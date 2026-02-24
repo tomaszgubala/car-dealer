@@ -6,12 +6,7 @@ export function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
           <div>
-            <div className="flex items-center gap-2 font-bold text-gray-900 mb-1">
-              <div className="w-6 h-6 bg-blue-600 rounded-md flex items-center justify-center">
-                <span className="text-white text-xs font-black">L</span>
-              </div>
-              L&apos;EMIR Sp. z o.o.
-            </div>
+            <div className="font-bold text-gray-900 mb-1">L&apos;EMIR Sp. z o.o.</div>
             <p className="text-sm text-gray-400">ul. Jana III Sobieskiego 16, 41-300 Dąbrowa Górnicza</p>
           </div>
 

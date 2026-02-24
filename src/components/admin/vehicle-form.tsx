@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { Save, Loader2 } from 'lucide-react'
+import { Save, Loader2, Upload, X } from 'lucide-react'
 
 interface VehicleFormProps {
   initialData?: {
@@ -33,8 +33,11 @@ interface VehicleFormProps {
     videos?: string[]
     features?: string[]
     promoted?: boolean
-    status_val?: string
+    contactPhone?: string | null
+    contactName?: string | null
   }
+  userPhone?: string | null
+  userName?: string | null
 }
 
 const FUEL_OPTIONS = ['Benzyna', 'Diesel', 'Hybryda', 'Hybryda plug-in', 'Elektryczny', 'LPG', 'CVT']
@@ -42,15 +45,50 @@ const GEARBOX_OPTIONS = ['Manualna', 'Automatyczna', 'CVT', 'DCT']
 const BODY_OPTIONS = ['Sedan', 'Hatchback', 'Kombi', 'SUV', 'Coupe', 'Cabrio', 'Van', 'Pickup', 'Crossover']
 const DRIVE_OPTIONS = ['FWD', 'RWD', '4x4', 'AWD']
 
-export function VehicleForm({ initialData }: VehicleFormProps) {
+export function VehicleForm({ initialData, userPhone, userName }: VehicleFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const isEdit = !!initialData?.id
 
-  const [images, setImages] = useState<string>(initialData?.images?.join('\n') || '')
+  const [images, setImages] = useState<string[]>(initialData?.images || [])
+  const [imageUrls, setImageUrls] = useState<string>(
+    initialData?.images?.filter(i => i.startsWith('http')).join('\n') || ''
+  )
   const [videos, setVideos] = useState<string>(initialData?.videos?.join('\n') || '')
   const [features, setFeatures] = useState<string>(initialData?.features?.join(', ') || '')
+  const [uploadingImages, setUploadingImages] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const handleImageUpload = async (files: FileList) => {
+    setUploadingImages(true)
+    const uploaded: string[] = []
+
+    for (const file of Array.from(files)) {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      try {
+        const res = await fetch('/api/admin/upload', {
+          method: 'POST',
+          body: formData,
+        })
+        if (res.ok) {
+          const { url } = await res.json()
+          uploaded.push(url)
+        }
+      } catch {
+        // ignore individual failures
+      }
+    }
+
+    setImages(prev => [...prev, ...uploaded])
+    setUploadingImages(false)
+  }
+
+  const removeImage = (url: string) => {
+    setImages(prev => prev.filter(i => i !== url))
+  }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -63,6 +101,11 @@ export function VehicleForm({ initialData }: VehicleFormProps) {
       const v = fd.get(k) as string
       return v ? parseFloat(v) : undefined
     }
+
+    // Combine uploaded images + manual URLs
+    const urlImages = imageUrls.split('\n').map(s => s.trim()).filter(Boolean)
+    const allImages = [...images.filter(i => !i.startsWith('http') || urlImages.includes(i)), ...urlImages]
+    const uniqueImages = [...new Set([...images, ...urlImages])]
 
     const data = {
       type: getStr('type'),
@@ -87,10 +130,12 @@ export function VehicleForm({ initialData }: VehicleFormProps) {
       location: getStr('location') || null,
       descriptionPL: (fd.get('descriptionPL') as string) || null,
       descriptionEN: (fd.get('descriptionEN') as string) || null,
-      images: images.split('\n').map(s => s.trim()).filter(Boolean),
+      images: uniqueImages,
       videos: videos.split('\n').map(s => s.trim()).filter(Boolean),
       features: features.split(',').map(s => s.trim()).filter(Boolean),
       promoted: fd.get('promoted') === 'on',
+      contactPhone: getStr('contactPhone') || null,
+      contactName: getStr('contactName') || null,
     }
 
     try {
@@ -234,19 +279,48 @@ export function VehicleForm({ initialData }: VehicleFormProps) {
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
           <div>
             <label className={lbl}>Cena brutto *</label>
-            <input type="number" name="priceGross" className={inp} required defaultValue={initialData?.priceGross} min={0} step={100} />
+            <input type="number" name="priceGross" className={inp} required defaultValue={initialData?.priceGross} min={0} step={1} />
           </div>
           <div>
-            <label className={lbl}>Rata miesięczna</label>
-            <input type="number" name="installmentAmount" className={inp} defaultValue={initialData?.installmentAmount ?? ''} min={0} step={10} />
+            <label className={lbl}>Rata miesięczna (zł)</label>
+            <input type="number" name="installmentAmount" className={inp} defaultValue={initialData?.installmentAmount ?? ''} min={0} step={1} />
           </div>
           <div>
             <label className={lbl}>Okres (mies.)</label>
             <input type="number" name="installmentTermMonths" className={inp} defaultValue={initialData?.installmentTermMonths ?? ''} min={1} max={120} />
           </div>
           <div>
-            <label className={lbl}>Wpłata własna</label>
-            <input type="number" name="installmentDownPayment" className={inp} defaultValue={initialData?.installmentDownPayment ?? ''} min={0} step={100} />
+            <label className={lbl}>Wpłata własna (zł)</label>
+            <input type="number" name="installmentDownPayment" className={inp} defaultValue={initialData?.installmentDownPayment ?? ''} min={0} step={1} />
+          </div>
+        </div>
+      </div>
+
+      {/* Contact */}
+      <div className="bg-white border border-gray-100 rounded-2xl p-6 space-y-4">
+        <h2 className="font-semibold text-gray-900">Kontakt do ogłoszenia</h2>
+        <p className="text-xs text-gray-400">Domyślnie pobierany z Twojego profilu. Możesz zmienić dla tego ogłoszenia.</p>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className={lbl}>Imię / nazwa handlowca</label>
+            <input
+              type="text"
+              name="contactName"
+              className={inp}
+              defaultValue={initialData?.contactName || userName || ''}
+              maxLength={100}
+            />
+          </div>
+          <div>
+            <label className={lbl}>Telefon kontaktowy</label>
+            <input
+              type="tel"
+              name="contactPhone"
+              className={inp}
+              defaultValue={initialData?.contactPhone || userPhone || ''}
+              placeholder="+48 32 508 80 00"
+              maxLength={20}
+            />
           </div>
         </div>
       </div>
@@ -259,24 +333,70 @@ export function VehicleForm({ initialData }: VehicleFormProps) {
           <textarea name="descriptionPL" className={inp} rows={5} defaultValue={initialData?.descriptionPL || ''} maxLength={10000} />
         </div>
         <div>
-          <label className={lbl}>Opis EN (opcjonalny — włącza filtr "Tylko EN")</label>
+          <label className={lbl}>Opis EN (opcjonalny — włącza filtr &quot;Tylko EN&quot;)</label>
           <textarea name="descriptionEN" className={inp} rows={5} defaultValue={initialData?.descriptionEN || ''} maxLength={10000} />
         </div>
       </div>
 
       {/* Media */}
       <div className="bg-white border border-gray-100 rounded-2xl p-6 space-y-4">
-        <h2 className="font-semibold text-gray-900">Media</h2>
+        <h2 className="font-semibold text-gray-900">Zdjęcia</h2>
+
+        {/* Upload */}
         <div>
-          <label className={lbl}>Zdjęcia — URL, jeden na linię</label>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            multiple
+            className="hidden"
+            onChange={(e) => e.target.files && handleImageUpload(e.target.files)}
+          />
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploadingImages}
+            className="flex items-center gap-2 px-4 py-2.5 border-2 border-dashed border-gray-200 rounded-xl text-sm text-gray-500 hover:border-blue-400 hover:text-blue-600 transition-colors w-full justify-center"
+          >
+            {uploadingImages ? (
+              <><Loader2 className="w-4 h-4 animate-spin" /> Wgrywanie...</>
+            ) : (
+              <><Upload className="w-4 h-4" /> Kliknij aby wgrać zdjęcia</>
+            )}
+          </button>
+        </div>
+
+        {/* Preview uploaded */}
+        {images.length > 0 && (
+          <div className="grid grid-cols-4 gap-2">
+            {images.map((url, i) => (
+              <div key={i} className="relative group">
+                <img src={url} alt="" className="w-full h-20 object-cover rounded-lg" />
+                <button
+                  type="button"
+                  onClick={() => removeImage(url)}
+                  className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Manual URLs */}
+        <div>
+          <label className={lbl}>Lub wklej URL zdjęć (jeden na linię)</label>
           <textarea
             className={inp}
-            rows={5}
-            value={images}
-            onChange={(e) => setImages(e.target.value)}
-            placeholder="https://example.com/photo1.jpg&#10;https://example.com/photo2.jpg"
+            rows={3}
+            value={imageUrls}
+            onChange={(e) => setImageUrls(e.target.value)}
+            placeholder="https://example.com/photo1.jpg"
           />
         </div>
+
+        {/* Videos */}
         <div>
           <label className={lbl}>Wideo — URL YouTube/Vimeo/MP4, jeden na linię</label>
           <textarea
@@ -287,6 +407,8 @@ export function VehicleForm({ initialData }: VehicleFormProps) {
             placeholder="https://www.youtube.com/watch?v=..."
           />
         </div>
+
+        {/* Features */}
         <div>
           <label className={lbl}>Wyposażenie (rozdzielone przecinkami)</label>
           <input

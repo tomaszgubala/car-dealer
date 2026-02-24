@@ -19,6 +19,7 @@ model User {
   password      String?
   role          Role      @default(EDITOR)
   active        Boolean   @default(true)
+  phone         String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -78,66 +79,70 @@ model VerificationToken {
 // ─── Vehicles / Listings ─────────────────────────────────────────────────────
 
 model Vehicle {
-  id             String       @id @default(cuid())
-  slug           String       @unique
-  source         String       @default("manual")
+  id               String        @id @default(cuid())
+  slug             String        @unique
+  source           String        @default("manual")
   sourceExternalId String?
-  type           VehicleType  @default(USED)
-  status         VehicleStatus @default(ACTIVE)
+  type             VehicleType   @default(USED)
+  status           VehicleStatus @default(ACTIVE)
 
   // Identity
-  make           String
-  model          String
-  trim           String?
-  year           Int
-  vin            String?
-  regNumber      String?
+  make      String
+  model     String
+  trim      String?
+  year      Int
+  vin       String?
+  regNumber String?
 
   // Specs
-  mileage        Int?
-  fuel           String?
-  gearbox        String?
-  bodyType       String?
-  drive          String?
-  powerHP        Int?
-  engineCC       Int?
-  color          String?
-  doors          Int?
-  seats          Int?
+  mileage  Int?
+  fuel     String?
+  gearbox  String?
+  bodyType String?
+  drive    String?
+  powerHP  Int?
+  engineCC Int?
+  color    String?
+  doors    Int?
+  seats    Int?
 
   // Pricing
-  priceGross     Float
-  currency       String       @default("PLN")
-  installmentAmount Float?
+  priceGross            Float
+  currency              String  @default("PLN")
+  installmentAmount     Float?
   installmentTermMonths Int?
   installmentDownPayment Float?
-  installmentBalloon Float?
+  installmentBalloon    Float?
 
   // Location
-  location       String?
-  branch         String?
+  location String?
+  branch   String?
+
+  // Contact
+  contactPhone String?
+  contactName  String?
 
   // Content
-  descriptionPL  String?      @db.Text
-  descriptionEN  String?      @db.Text
-  hasEN          Boolean      @default(false)
-  features       String[]
-  equipment      Json?
+  descriptionPL String?  @db.Text
+  descriptionEN String?  @db.Text
+  hasEN         Boolean  @default(false)
+  features      String[]
+  equipment     Json?
 
   // Media
-  images         String[]
-  videos         String[]
+  images String[]
+  videos String[]
 
   // Meta
-  promoted       Boolean      @default(false)
-  promotedUntil  DateTime?
-  publishedAt    DateTime?
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  promoted      Boolean   @default(false)
+  promotedUntil DateTime?
+  publishedAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
-  events         Event[]
-  leads          Lead[]
-  auditLogs      AuditLog[]
+  events    Event[]
+  leads     Lead[]
+  auditLogs AuditLog[]
 
   @@index([type, status])
   @@index([make, model])
@@ -162,19 +167,19 @@ enum VehicleStatus {
 // ─── Leads / Forms ────────────────────────────────────────────────────────────
 
 model Lead {
-  id          String   @id @default(cuid())
-  vehicleId   String?
-  type        String   // inquiry / test_drive / call_click / email_click
-  name        String
-  email       String
-  phone       String?
-  message     String?  @db.Text
-  ipHash      String?
-  userAgent   String?
-  createdAt   DateTime @default(now())
-  read        Boolean  @default(false)
+  id        String   @id @default(cuid())
+  vehicleId String?
+  type      String
+  name      String
+  email     String
+  phone     String?
+  message   String?  @db.Text
+  ipHash    String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  read      Boolean  @default(false)
 
-  vehicle     Vehicle? @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+  vehicle Vehicle? @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
 
   @@map("leads")
 }
@@ -182,16 +187,16 @@ model Lead {
 // ─── Stats / Events ───────────────────────────────────────────────────────────
 
 model Event {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   type      EventType
   vehicleId String?
   ipHash    String?
   userAgent String?
   referer   String?
   country   String?
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
 
-  vehicle   Vehicle? @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+  vehicle Vehicle? @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
 
   @@index([type, createdAt])
   @@index([vehicleId, type])
@@ -211,16 +216,16 @@ enum EventType {
 // ─── Import Jobs ──────────────────────────────────────────────────────────────
 
 model ImportJob {
-  id          String      @id @default(cuid())
-  connector   String
-  status      ImportStatus @default(PENDING)
-  startedAt   DateTime?
-  finishedAt  DateTime?
-  newCount    Int         @default(0)
-  updatedCount Int        @default(0)
-  errorCount  Int         @default(0)
-  errors      Json?
-  createdAt   DateTime    @default(now())
+  id           String       @id @default(cuid())
+  connector    String
+  status       ImportStatus @default(PENDING)
+  startedAt    DateTime?
+  finishedAt   DateTime?
+  newCount     Int          @default(0)
+  updatedCount Int          @default(0)
+  errorCount   Int          @default(0)
+  errors       Json?
+  createdAt    DateTime     @default(now())
 
   @@index([connector, createdAt])
   @@map("import_jobs")
@@ -236,15 +241,15 @@ enum ImportStatus {
 // ─── Audit Log ────────────────────────────────────────────────────────────────
 
 model AuditLog {
-  id         String   @id @default(cuid())
-  userId     String?
-  vehicleId  String?
-  action     String
-  meta       Json?
-  createdAt  DateTime @default(now())
+  id        String   @id @default(cuid())
+  userId    String?
+  vehicleId String?
+  action    String
+  meta      Json?
+  createdAt DateTime @default(now())
 
-  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
-  vehicle    Vehicle? @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+  user    User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  vehicle Vehicle? @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
 
   @@map("audit_logs")
 }
