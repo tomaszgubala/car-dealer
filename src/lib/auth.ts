@@ -26,20 +26,25 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: {},
       },
       async authorize(credentials) {
+        console.log('authorize called', credentials)
+        
         const parsed = z
           .object({ email: z.string().email(), password: z.string().min(8) })
           .safeParse(credentials)
 
+        console.log('parsed:', parsed.success, parsed.error?.message)
         if (!parsed.success) return null
 
         const user = await prisma.user.findUnique({
           where: { email: parsed.data.email },
         })
 
+        console.log('user found:', !!user, 'active:', user?.active)
         if (!user?.password || !user.active) return null
 
         const bcrypt = await import('bcryptjs')
         const valid = await bcrypt.compare(parsed.data.password, user.password)
+        console.log('password valid:', valid)
         if (!valid) return null
 
         return {
