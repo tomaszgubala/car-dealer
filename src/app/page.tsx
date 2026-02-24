@@ -70,11 +70,11 @@ export default async function HomePage({ searchParams }: PageProps) {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Hero text - minimal */}
-      <div className="mb-8">
+      <div className="mb-8 flex items-baseline gap-3">
         <h1 className="text-2xl font-bold text-gray-900">
           {filters.type === 'NEW' ? 'Samochody nowe' : 'Samochody używane'}
         </h1>
-        <p className="text-gray-500 text-sm mt-0.5">Certyfikowany dealer · Gwarancja jakości</p>
+        <p className="text-gray-400 text-sm">Certyfikowany dealer · Gwarancja jakości</p>
       </div>
 
       <Suspense>
