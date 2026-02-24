@@ -1,13 +1,23 @@
-import { auth } from '@/lib/auth'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { getToken } from 'next-auth/jwt'
 
-export default auth((req) => {
+export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
 
-  // Protect /admin routes (except /admin/login)
-  if (pathname.startsWith('/admin') && !pathname.startsWith('/admin/login')) {
-    if (!req.auth) {
+  // /admin/login - zawsze przepuść
+  if (pathname === '/admin/login') {
+    return NextResponse.next()
+  }
+
+  // Protect /admin routes
+  if (pathname.startsWith('/admin')) {
+    const token = await getToken({
+      req,
+      secret: process.env.NEXTAUTH_SECRET,
+    })
+
+    if (!token) {
       const loginUrl = new URL('/admin/login', req.url)
       loginUrl.searchParams.set('callbackUrl', pathname)
       return NextResponse.redirect(loginUrl)
@@ -16,15 +26,19 @@ export default auth((req) => {
 
   // Protect /api/admin routes
   if (pathname.startsWith('/api/admin')) {
-    if (!req.auth) {
+    const token = await getToken({
+      req,
+      secret: process.env.NEXTAUTH_SECRET,
+    })
+
+    if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
   }
 
   return NextResponse.next()
-})
+}
 
 export const config = {
-  // Kluczowa zmiana: /admin/login wykluczone z matchera
-  matcher: ['/admin/((?!login$).+)', '/api/admin/:path*'],
+  matcher: ['/admin/:path*', '/api/admin/:path*'],
 }
