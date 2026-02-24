@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { getToken } from 'next-auth/jwt'
 
-export async function middleware(req: NextRequest) {
+export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
 
   // /admin/login - zawsze przepuść
@@ -10,14 +9,16 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next()
   }
 
+  // Sprawdź czy jest cookie sesji NextAuth
+  const sessionToken = 
+    req.cookies.get('next-auth.session-token')?.value ||
+    req.cookies.get('__Secure-next-auth.session-token')?.value ||
+    req.cookies.get('authjs.session-token')?.value ||
+    req.cookies.get('__Secure-authjs.session-token')?.value
+
   // Protect /admin routes
   if (pathname.startsWith('/admin')) {
-    const token = await getToken({
-      req,
-      secret: process.env.NEXTAUTH_SECRET,
-    })
-
-    if (!token) {
+    if (!sessionToken) {
       const loginUrl = new URL('/admin/login', req.url)
       loginUrl.searchParams.set('callbackUrl', pathname)
       return NextResponse.redirect(loginUrl)
@@ -26,12 +27,7 @@ export async function middleware(req: NextRequest) {
 
   // Protect /api/admin routes
   if (pathname.startsWith('/api/admin')) {
-    const token = await getToken({
-      req,
-      secret: process.env.NEXTAUTH_SECRET,
-    })
-
-    if (!token) {
+    if (!sessionToken) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
   }
