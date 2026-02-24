@@ -1,5 +1,6 @@
 import { PrismaClient, VehicleType, VehicleStatus, Role } from '@prisma/client'
 import { randomBytes } from 'crypto'
+import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
 
@@ -328,8 +329,7 @@ async function main() {
   console.log('🌱 Seeding database...')
 
   // Create admin user
-  const { hash } = await import('bcryptjs')
-  const passwordHash = await hash('Admin1234!', 12)
+  const passwordHash = await bcrypt.hash('Admin1234!', 12)
 
   await prisma.user.upsert({
     where: { email: 'admin@dealer.pl' },
