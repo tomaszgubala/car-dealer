@@ -6,8 +6,8 @@ import { ListingGrid } from '@/components/listing/listing-grid'
 import type { ListingFilters, VehicleType } from '@/types'
 
 export const metadata: Metadata = {
-  title: 'Samochody nowe i używane — oferta dealera',
-  description: 'Sprawdź naszą ofertę samochodów nowych i używanych. Filtry, zdjęcia, ceny, raty. Szybko, prosto, bez waty.',
+  title: "L'EMIR — Samochody nowe i używane",
+  description: "Sprawdź ofertę L'EMIR — samochody nowe i używane. Filtry, zdjęcia, ceny, raty. Szybko, prosto, bez waty.",
 }
 
 // ISR: revalidate every 60 seconds

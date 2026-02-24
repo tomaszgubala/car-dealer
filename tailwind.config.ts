@@ -10,17 +10,17 @@ const config: Config = {
     extend: {
       colors: {
         primary: {
-          50: '#f0f4ff',
-          100: '#e0eaff',
-          500: '#2563eb',
-          600: '#1d4ed8',
-          700: '#1e40af',
+          50: '#eff6ff',
+          100: '#dbeafe',
+          500: '#3b82f6',
+          600: '#2563eb',
+          700: '#1d4ed8',
           900: '#1e3a8a',
         },
         surface: {
-          50: '#f8fafc',
-          100: '#f1f5f9',
-          200: '#e2e8f0',
+          50: '#f0f5ff',
+          100: '#e8f0fe',
+          200: '#c7d7fd',
         },
       },
       fontFamily: {
