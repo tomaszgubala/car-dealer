@@ -25,5 +25,6 @@ export default auth((req) => {
 })
 
 export const config = {
-  matcher: ['/admin/:path*', '/api/admin/:path*'],
+  // Kluczowa zmiana: /admin/login wykluczone z matchera
+  matcher: ['/admin/((?!login$).+)', '/api/admin/:path*'],
 }
