@@ -105,7 +105,7 @@ export function VehicleForm({ initialData, userPhone, userName }: VehicleFormPro
     // Combine uploaded images + manual URLs
     const urlImages = imageUrls.split('\n').map(s => s.trim()).filter(Boolean)
     const allImages = [...images.filter(i => !i.startsWith('http') || urlImages.includes(i)), ...urlImages]
-    const uniqueImages = [...new Set([...images, ...urlImages])]
+    const uniqueImages = Array.from(new Set([...images, ...urlImages]))
 
     const data = {
       type: getStr('type'),
