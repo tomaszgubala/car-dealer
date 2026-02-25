@@ -15,14 +15,12 @@ const schema = z.object({
   honeypot: z.string().optional(),
 })
 
-// Simple in-memory rate limiter (per IP, per hour)
 const rateLimit = new Map<string, { count: number; reset: number }>()
 
 function checkRateLimit(ip: string): boolean {
   const now = Date.now()
   const key = hashIp(ip)
   const entry = rateLimit.get(key)
-
   if (!entry || entry.reset < now) {
     rateLimit.set(key, { count: 1, reset: now + 3600_000 })
     return true
@@ -53,12 +51,26 @@ export async function POST(req: Request) {
 
   const { honeypot, ...data } = parsed.data
 
-  // Honeypot check
   if (honeypot) {
-    return NextResponse.json({ ok: true }) // Silent fail for bots
+    return NextResponse.json({ ok: true })
   }
 
   try {
+    // Pobierz dane kontaktowe z ogłoszenia
+    let contactEmail: string | null = null
+    let contactPhone: string | null = null
+    let contactName: string | null = null
+
+    if (data.vehicleId) {
+      const vehicle = await prisma.vehicle.findUnique({
+        where: { id: data.vehicleId },
+        select: { contactEmail: true, contactPhone: true, contactName: true },
+      })
+      contactEmail = vehicle?.contactEmail || null
+      contactPhone = vehicle?.contactPhone || null
+      contactName = vehicle?.contactName || null
+    }
+
     const lead = await prisma.lead.create({
       data: {
         vehicleId: data.vehicleId || null,
@@ -72,7 +84,6 @@ export async function POST(req: Request) {
       },
     })
 
-    // Track event
     await prisma.event.create({
       data: {
         type: 'CTA_FORM',
@@ -81,9 +92,13 @@ export async function POST(req: Request) {
       },
     })
 
-    // Send email notification (async, don't await)
+    // Wyślij na email handlowca z ogłoszenia LUB globalny DEALER_EMAIL
     if (process.env.RESEND_API_KEY) {
-      sendLeadEmail(lead.id, data).catch(console.error)
+      sendLeadEmail(lead.id, data, {
+        contactEmail,
+        contactPhone,
+        contactName,
+      }).catch(console.error)
     }
 
     return NextResponse.json({ ok: true, id: lead.id })
@@ -93,21 +108,38 @@ export async function POST(req: Request) {
   }
 }
 
-async function sendLeadEmail(leadId: string, data: { type: string; name: string; email: string; phone?: string; message?: string; vehicleId?: string }) {
+async function sendLeadEmail(
+  leadId: string,
+  data: { type: string; name: string; email: string; phone?: string; message?: string; vehicleId?: string },
+  contact: { contactEmail: string | null; contactPhone: string | null; contactName: string | null }
+) {
   const { Resend } = await import('resend')
   const resend = new Resend(process.env.RESEND_API_KEY)
 
+  // Wyślij na email handlowca jeśli ustawiony, w przeciwnym razie na globalny
+  const toEmail = contact.contactEmail || process.env.DEALER_EMAIL || 'kontakt@dealer.pl'
+
+  const typeLabel = data.type === 'test_drive' ? 'Jazda próbna' : 'Zapytanie o pojazd'
+
   await resend.emails.send({
     from: process.env.EMAIL_FROM || 'noreply@dealer.pl',
-    to: process.env.DEALER_EMAIL || 'kontakt@dealer.pl',
-    subject: `Nowe zapytanie [${data.type}] od ${data.name}`,
+    to: toEmail,
+    replyTo: data.email,
+    subject: `${typeLabel} od ${data.name}`,
     text: [
-      `Typ: ${data.type}`,
+      `Typ: ${typeLabel}`,
+      ``,
+      `--- Dane klienta ---`,
       `Imię: ${data.name}`,
       `Email: ${data.email}`,
       `Telefon: ${data.phone || '—'}`,
-      `Pojazd ID: ${data.vehicleId || '—'}`,
       `Wiadomość: ${data.message || '—'}`,
-    ].join('\n'),
+      ``,
+      `--- Ogłoszenie ---`,
+      `ID pojazdu: ${data.vehicleId || '—'}`,
+      contact.contactName ? `Handlowiec: ${contact.contactName}` : '',
+      ``,
+      `Lead ID: ${leadId}`,
+    ].filter(Boolean).join('\n'),
   })
 }

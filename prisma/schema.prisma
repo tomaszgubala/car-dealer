@@ -120,6 +120,7 @@ model Vehicle {
 
   // Contact
   contactPhone String?
+  contactEmail String?
   contactName  String?
 
   // Content
