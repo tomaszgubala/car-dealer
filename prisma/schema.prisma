@@ -124,6 +124,7 @@ model Vehicle {
   contactName  String?
   specificationUrl String?
   specificationUrl String?
+  specificationUrl String?
 
   // Content
   descriptionPL String?  @db.Text
