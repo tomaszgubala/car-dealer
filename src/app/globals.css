@@ -36,3 +36,5 @@
     transform: scale(1.02);
   }
 }
+
+html, body { overflow-x: hidden; max-width: 100%; }
