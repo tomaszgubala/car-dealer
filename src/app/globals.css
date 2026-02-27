@@ -5,15 +5,26 @@
 @layer base {
   * {
     box-sizing: border-box;
+    min-width: 0;
+  }
+
+  html {
+    overflow-x: hidden;
   }
 
   body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     background-color: #f0f5ff;
+    overflow-x: hidden;
+    width: 100%;
   }
 
-  /* Scrollbar */
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
   .scrollbar-thin {
     scrollbar-width: thin;
     scrollbar-color: #bfdbfe transparent;
@@ -36,5 +47,3 @@
     transform: scale(1.02);
   }
 }
-
-html, body { overflow-x: hidden; max-width: 100%; }
