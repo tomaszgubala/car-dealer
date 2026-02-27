@@ -34,11 +34,9 @@ interface VehicleFormProps {
     features?: string[]
     promoted?: boolean
     contactPhone?: string | null
-    contactEmail?: string | null
     contactName?: string | null
   }
   userPhone?: string | null
-  userEmail?: string | null
   userName?: string | null
 }
 
@@ -47,10 +45,27 @@ const GEARBOX_OPTIONS = ['Manualna', 'Automatyczna', 'CVT', 'DCT']
 const BODY_OPTIONS = ['Sedan', 'Hatchback', 'Kombi', 'SUV', 'Coupe', 'Cabrio', 'Van', 'Pickup', 'Crossover']
 const DRIVE_OPTIONS = ['FWD', 'RWD', '4x4', 'AWD']
 
-export function VehicleForm({ initialData, userPhone, userEmail, userName }: VehicleFormProps) {
+export function VehicleForm({ initialData, userPhone, userName }: VehicleFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
+  const uploadPdf = async (file: File) => {
+    setUploadingPdf(true)
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      const res = await fetch('/api/admin/upload', { method: 'POST', body: fd })
+      if (!res.ok) throw new Error('Błąd uploadu PDF')
+      const { url } = await res.json()
+      setSpecPdfUrl(url)
+    } catch (err) {
+      alert('Błąd uploadu PDF: ' + (err instanceof Error ? err.message : 'Nieznany'))
+    } finally {
+      setUploadingPdf(false)
+    }
+  }
+
   const isEdit = !!initialData?.id
 
   const [images, setImages] = useState<string[]>(initialData?.images || [])
@@ -60,6 +75,8 @@ export function VehicleForm({ initialData, userPhone, userEmail, userName }: Veh
   const [videos, setVideos] = useState<string>(initialData?.videos?.join('\n') || '')
   const [features, setFeatures] = useState<string>(initialData?.features?.join(', ') || '')
   const [uploadingImages, setUploadingImages] = useState(false)
+  const [specPdfUrl, setSpecPdfUrl] = useState<string | null>(initialData?.specificationUrl || null)
+  const [uploadingPdf, setUploadingPdf] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleImageUpload = async (files: FileList) => {
@@ -137,7 +154,6 @@ export function VehicleForm({ initialData, userPhone, userEmail, userName }: Veh
       features: features.split(',').map(s => s.trim()).filter(Boolean),
       promoted: fd.get('promoted') === 'on',
       contactPhone: getStr('contactPhone') || null,
-      contactEmail: getStr('contactEmail') || null,
       contactName: getStr('contactName') || null,
     }
 
@@ -323,17 +339,6 @@ export function VehicleForm({ initialData, userPhone, userEmail, userName }: Veh
               defaultValue={initialData?.contactPhone || userPhone || ''}
               placeholder="+48 32 508 80 00"
               maxLength={20}
-            />
-          </div>
-          <div>
-            <label className={lbl}>Email kontaktowy</label>
-            <input
-              type="email"
-              name="contactEmail"
-              className={inp}
-              defaultValue={initialData?.contactEmail || userEmail || ''}
-              placeholder="handlowiec@lemir.com.pl"
-              maxLength={200}
             />
           </div>
         </div>

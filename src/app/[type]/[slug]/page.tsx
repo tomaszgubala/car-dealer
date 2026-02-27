@@ -59,8 +59,8 @@ export default async function VehiclePage({ params }: PageProps) {
 
   const similar = await getSimilarVehicles(v.id, v.make, v.type)
   const title = `${v.make} ${v.model}${v.trim ? ' ' + v.trim : ''} (${v.year})`
-  const dealerPhone = process.env.DEALER_PHONE || '+48 123 456 789'
-  const dealerEmail = process.env.DEALER_EMAIL || 'kontakt@dealer.pl'
+  const dealerPhone = v.contactPhone || process.env.DEALER_PHONE || ''
+  const dealerEmail = v.contactEmail || process.env.DEALER_EMAIL || ''
 
   return (
     <>
@@ -125,6 +125,33 @@ export default async function VehiclePage({ params }: PageProps) {
               </div>
             )}
 
+
+            {/* Specification PDF */}
+            {v.specificationUrl && (
+              <div className="bg-white border border-gray-100 rounded-2xl p-6">
+                <h2 className="font-semibold text-gray-900 mb-4">Specyfikacja techniczna</h2>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <a
+                    href={v.specificationUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <svg className="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path d="M4 18h12V6l-4-4H4v16zm8-14l2 2h-2V4z"/></svg>
+                    Podgląd specyfikacji
+                  </a>
+                  <a
+                    href={v.specificationUrl}
+                    download
+                    className="flex items-center gap-2 px-4 py-2.5 bg-primary-600 text-white rounded-xl text-sm font-semibold hover:bg-primary-700 transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    Pobierz PDF
+                  </a>
+                </div>
+              </div>
+            )}
+
             {/* Descriptions */}
             {(v.descriptionPL || v.descriptionEN) && (
               <div className="bg-white border border-gray-100 rounded-2xl p-6 space-y-4">
@@ -159,6 +186,7 @@ export default async function VehiclePage({ params }: PageProps) {
                 vehicleTitle={title}
                 dealerPhone={dealerPhone}
                 dealerEmail={dealerEmail}
+                contactName={v.contactName || undefined}
               />
 
               {/* Share */}

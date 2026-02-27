@@ -9,9 +9,10 @@ interface LeadFormProps {
   vehicleTitle: string
   dealerPhone?: string
   dealerEmail?: string
+  contactName?: string
 }
 
-export function LeadForm({ vehicleId, vehicleTitle, dealerPhone, dealerEmail }: LeadFormProps) {
+export function LeadForm({ vehicleId, vehicleTitle, dealerPhone, dealerEmail, contactName }: LeadFormProps) {
   const [type, setType] = useState<'inquiry' | 'test_drive'>('inquiry')
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -85,7 +86,7 @@ export function LeadForm({ vehicleId, vehicleTitle, dealerPhone, dealerEmail }: 
             className="flex items-center justify-center gap-2 w-full py-3 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700 transition-colors"
           >
             <Phone className="w-4 h-4" />
-            Zadzwoń: {dealerPhone}
+            {contactName ? `${contactName}: ` : ''}{dealerPhone}
           </a>
         )}
         {dealerEmail && (

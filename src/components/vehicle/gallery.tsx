@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { ChevronLeft, ChevronRight, X, ZoomIn } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { getVideoEmbed } from '@/lib/utils'
+import { galleryUrl, thumbnailUrl } from '@/lib/cloudinary-utils'
 
 interface GalleryProps {
   images: string[]
@@ -45,10 +46,10 @@ export function VehicleGallery({ images, videos = [], alt }: GalleryProps) {
           {item.type === 'image' ? (
             <>
               <Image
-                src={item.src}
+                src={galleryUrl(item.src)}
                 alt={`${alt} - zdjęcie ${current + 1}`}
                 fill
-                className="object-cover"
+                className="object-contain"
                 sizes="(max-width: 768px) 100vw, 60vw"
                 priority
               />
@@ -97,7 +98,7 @@ export function VehicleGallery({ images, videos = [], alt }: GalleryProps) {
                 )}
               >
                 {m.type === 'image' ? (
-                  <Image src={m.src} alt="" fill className="object-cover" sizes="64px" />
+                  <Image src={thumbnailUrl(m.src)} alt="" fill className="object-cover" sizes="64px" />
                 ) : (
                   <div className="w-full h-full bg-gray-800 flex items-center justify-center text-white">
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -125,7 +126,7 @@ export function VehicleGallery({ images, videos = [], alt }: GalleryProps) {
           </button>
           <div className="relative max-w-5xl w-full max-h-full" onClick={(e) => e.stopPropagation()}>
             <div className="relative aspect-[16/9]">
-              <Image src={item.src} alt={alt} fill className="object-contain" sizes="100vw" />
+              <Image src={galleryUrl(item.src)} alt={alt} fill className="object-contain" sizes="100vw" />
             </div>
           </div>
           {total > 1 && (
