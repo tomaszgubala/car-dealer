@@ -37,6 +37,7 @@ interface VehicleFormProps {
     contactName?: string | null
   }
   userPhone?: string | null
+  userEmail?: string | null
   userName?: string | null
 }
 
@@ -45,7 +46,7 @@ const GEARBOX_OPTIONS = ['Manualna', 'Automatyczna', 'CVT', 'DCT']
 const BODY_OPTIONS = ['Sedan', 'Hatchback', 'Kombi', 'SUV', 'Coupe', 'Cabrio', 'Van', 'Pickup', 'Crossover']
 const DRIVE_OPTIONS = ['FWD', 'RWD', '4x4', 'AWD']
 
-export function VehicleForm({ initialData, userPhone, userName }: VehicleFormProps) {
+export function VehicleForm({ initialData, userPhone, userEmail, userName }: VehicleFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
