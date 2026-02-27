@@ -43,6 +43,10 @@ export interface VehicleDetail extends VehicleListItem {
   videos: string[]
   promotedUntil: string | null
   updatedAt: string
+  contactPhone: string | null
+  contactEmail: string | null
+  contactName: string | null
+  specificationUrl: string | null
 }
 
 export interface ListingFilters {
