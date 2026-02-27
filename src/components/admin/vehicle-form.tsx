@@ -35,6 +35,7 @@ interface VehicleFormProps {
     promoted?: boolean
     contactPhone?: string | null
     contactName?: string | null
+    specificationUrl?: string | null
   }
   userPhone?: string | null
   userEmail?: string | null
