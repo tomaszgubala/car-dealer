@@ -33,7 +33,7 @@ export function StructuredDataVehicle({ vehicle: v }: Props) {
           : 'https://schema.org/OutOfStock',
       seller: {
         '@type': 'AutoDealer',
-        name: 'AutoDealer',
+        name: "L'EMIR",
         address: {
           '@type': 'PostalAddress',
           addressLocality: v.location || 'Warszawa',
