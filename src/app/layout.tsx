@@ -9,14 +9,14 @@ const inter = Inter({ subsets: ['latin', 'latin-ext'], display: 'swap' })
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXTAUTH_URL || 'http://localhost:3000'),
   title: {
-    default: 'AutoDealer — Samochody nowe i używane',
-    template: '%s | AutoDealer',
+    default: 'L'EMIR — Samochody nowe i używane',
+    template: '%s | L'EMIR',
   },
   description: 'Szeroki wybór samochodów nowych i używanych. Sprawdź naszą ofertę.',
   openGraph: {
     type: 'website',
     locale: 'pl_PL',
-    siteName: 'AutoDealer',
+    siteName: 'L'EMIR',
   },
   robots: { index: true, follow: true },
 }
