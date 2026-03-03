@@ -34,6 +34,8 @@ const schema = z.object({
   videos: z.array(z.string()).max(5).default([]),
   features: z.array(z.string()).max(100).default([]),
   promoted: z.boolean().default(false),
+  contactPhone: z.string().max(20).optional().nullable(),
+  contactName: z.string().max(100).optional().nullable(),
 })
 
 async function checkAuth() {

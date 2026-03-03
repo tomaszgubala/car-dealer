@@ -33,6 +33,8 @@ const patchSchema = z.object({
   videos: z.array(z.string()).max(5).optional(),
   features: z.array(z.string()).max(100).optional(),
   promoted: z.boolean().optional(),
+  contactPhone: z.string().max(20).nullable().optional(),
+  contactName: z.string().max(100).nullable().optional(),
 })
 
 interface Params { params: { id: string } }

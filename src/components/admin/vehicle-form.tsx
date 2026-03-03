@@ -120,7 +120,8 @@ export function VehicleForm({ initialData, userPhone, userEmail, userName }: Veh
     const getStr = (k: string) => fd.get(k) as string || undefined
     const getNum = (k: string) => {
       const v = fd.get(k) as string
-      return v ? parseFloat(v) : undefined
+      const n = parseFloat(v)
+      return isNaN(n) ? undefined : n
     }
 
     // Combine uploaded images + manual URLs
@@ -238,7 +239,7 @@ export function VehicleForm({ initialData, userPhone, userEmail, userName }: Veh
           </div>
           <div>
             <label className={lbl}>Przebieg (km)</label>
-            <input type="number" name="mileage" className={inp} defaultValue={initialData?.mileage ?? ''} min={0} />
+            <input type="number" name="mileage" className={inp} defaultValue={initialData?.mileage ?? ''} min={0} step={1} />
           </div>
           <div>
             <label className={lbl}>Lokalizacja</label>
@@ -281,7 +282,7 @@ export function VehicleForm({ initialData, userPhone, userEmail, userName }: Veh
           </div>
           <div>
             <label className={lbl}>Moc (KM)</label>
-            <input type="number" name="powerHP" className={inp} defaultValue={initialData?.powerHP ?? ''} min={1} max={2000} />
+            <input type="number" name="powerHP" className={inp} defaultValue={initialData?.powerHP ?? ''} min={1} max={2000} step={1} />
           </div>
           <div>
             <label className={lbl}>Pojemność (cm³)</label>
@@ -308,7 +309,7 @@ export function VehicleForm({ initialData, userPhone, userEmail, userName }: Veh
           </div>
           <div>
             <label className={lbl}>Okres (mies.)</label>
-            <input type="number" name="installmentTermMonths" className={inp} defaultValue={initialData?.installmentTermMonths ?? ''} min={1} max={120} />
+            <input type="number" name="installmentTermMonths" className={inp} defaultValue={initialData?.installmentTermMonths ?? ''} min={1} max={120} step={1} />
           </div>
           <div>
             <label className={lbl}>Wpłata własna (zł)</label>
