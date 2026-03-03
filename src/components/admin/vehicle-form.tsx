@@ -35,6 +35,7 @@ interface VehicleFormProps {
     promoted?: boolean
     contactPhone?: string | null
     contactName?: string | null
+    contactEmail?: string | null
     specificationUrl?: string | null
   }
   userPhone?: string | null
@@ -158,6 +159,7 @@ export function VehicleForm({ initialData, userPhone, userEmail, userName }: Veh
       promoted: fd.get('promoted') === 'on',
       contactPhone: getStr('contactPhone') || null,
       contactName: getStr('contactName') || null,
+      contactEmail: getStr('contactEmail') || null,
     }
 
     try {
@@ -342,6 +344,17 @@ export function VehicleForm({ initialData, userPhone, userEmail, userName }: Veh
               defaultValue={initialData?.contactPhone || userPhone || ''}
               placeholder="+48 32 508 80 00"
               maxLength={20}
+            />
+          </div>
+          <div className="col-span-2">
+            <label className={lbl}>Email kontaktowy</label>
+            <input
+              type="email"
+              name="contactEmail"
+              className={inp}
+              defaultValue={initialData?.contactEmail || userEmail || ''}
+              placeholder="handlowiec@lemir.com.pl"
+              maxLength={200}
             />
           </div>
         </div>
