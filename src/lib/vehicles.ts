@@ -17,6 +17,7 @@ function buildWhere(filters: ListingFilters): Prisma.VehicleWhereInput {
   if (filters.drive?.length) where.drive = { in: filters.drive }
   if (filters.location?.length) where.location = { in: filters.location }
   if (filters.onlyEN) where.hasEN = true
+  if (filters.onlyInstallment) where.installmentAmount = { gt: 0 }
 
   if (filters.yearFrom || filters.yearTo) {
     where.year = {

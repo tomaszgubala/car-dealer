@@ -17,11 +17,12 @@ interface ListingGridProps {
 }
 
 export function ListingGrid({ initialData, filterOptions, type, newCount, usedCount }: ListingGridProps) {
-  const [showInstallment, setShowInstallment] = useState(false)
-  const [onlyEN, setOnlyEN] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
+
+  const [showInstallment, setShowInstallment] = useState(() => searchParams.get('onlyInstallment') === '1')
+  const [onlyEN, setOnlyEN] = useState(false)
 
   const handleTypeChange = (newType: string) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -35,6 +36,15 @@ export function ListingGrid({ initialData, filterOptions, type, newCount, usedCo
     params.set('page', String(page))
     router.push(`${pathname}?${params.toString()}`)
     window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const handleInstallmentChange = (val: boolean) => {
+    setShowInstallment(val)
+    const params = new URLSearchParams(searchParams.toString())
+    if (val) params.set('onlyInstallment', '1')
+    else params.delete('onlyInstallment')
+    params.set('page', '1')
+    router.push(`${pathname}?${params.toString()}`)
   }
 
   const handleOnlyEN = (val: boolean) => {
@@ -66,7 +76,7 @@ export function ListingGrid({ initialData, filterOptions, type, newCount, usedCo
       <ListingFilters
         options={filterOptions}
         showInstallment={showInstallment}
-        onInstallmentChange={setShowInstallment}
+        onInstallmentChange={handleInstallmentChange}
         onlyEN={onlyEN}
         onOnlyENChange={handleOnlyEN}
         totalCount={total}

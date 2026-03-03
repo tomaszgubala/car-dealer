@@ -50,6 +50,7 @@ function parseFilters(searchParams: PageProps['searchParams']): ListingFilters {
     priceFrom: getNum('priceFrom'),
     priceTo: getNum('priceTo'),
     onlyEN: get('onlyEN') === '1',
+    onlyInstallment: get('onlyInstallment') === '1',
     q: get('q'),
     sort: (get('sort') as ListingFilters['sort']) || 'newest',
     page: getNum('page') || 1,

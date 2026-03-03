@@ -65,6 +65,7 @@ export interface ListingFilters {
   drive?: string[]
   location?: string[]
   onlyEN?: boolean
+  onlyInstallment?: boolean
   q?: string
   sort?: SortOption
   page?: number
