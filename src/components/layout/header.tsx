@@ -6,7 +6,7 @@ export function Header() {
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-blue-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-4">
         <Link href="/" className="font-bold text-gray-900 text-lg tracking-tight shrink-0">
-          L&apos;EMIR
+          L&apos;EMIR Sp. z o.o.
         </Link>
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-600">
           <Link href="/?type=USED" className="hover:text-blue-600 transition-colors whitespace-nowrap">Samochody używane</Link>
