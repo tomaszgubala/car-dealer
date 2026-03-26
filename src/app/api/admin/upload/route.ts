@@ -28,7 +28,7 @@ export async function POST(req: Request) {
 
   const url = await new Promise<string>((resolve, reject) => {
     const options = isPdf
-      ? { folder: 'lemir-specs', resource_type: 'raw' as const, format: 'pdf' }
+      ? { folder: 'lemir-specs', resource_type: 'auto' as const, format: 'pdf' }
       : { folder: 'lemir-cars', resource_type: 'image' as const }
 
     const stream = cloudinary.uploader.upload_stream(options, (err, result) => {

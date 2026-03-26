@@ -141,8 +141,7 @@ export default async function VehiclePage({ params }: PageProps) {
                     Podgląd specyfikacji
                   </a>
                   <a
-                    href={v.specificationUrl}
-                    download
+                    href={`/api/download?url=${encodeURIComponent(v.specificationUrl)}&filename=${encodeURIComponent(`${v.make}-${v.model}-specyfikacja.pdf`)}`}
                     className="flex items-center gap-2 px-4 py-2.5 bg-primary-600 text-white rounded-xl text-sm font-semibold hover:bg-primary-700 transition-colors"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
