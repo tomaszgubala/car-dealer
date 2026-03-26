@@ -10,3 +10,5 @@ dist/
 .DS_Store
 prisma/generated/
 .env*.local
+.claude/
+icon.png
