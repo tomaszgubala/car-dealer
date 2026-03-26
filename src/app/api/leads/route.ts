@@ -61,14 +61,19 @@ export async function POST(req: Request) {
     let contactPhone: string | null = null
     let contactName: string | null = null
 
+    let vehicleTitle: string | null = null
+    let vehicleSlug: string | null = null
+
     if (data.vehicleId) {
       const vehicle = await prisma.vehicle.findUnique({
         where: { id: data.vehicleId },
-        select: { contactEmail: true, contactPhone: true, contactName: true },
+        select: { contactEmail: true, contactPhone: true, contactName: true, make: true, model: true, trim: true, year: true, slug: true },
       })
       contactEmail = vehicle?.contactEmail || null
       contactPhone = vehicle?.contactPhone || null
       contactName = vehicle?.contactName || null
+      vehicleTitle = vehicle ? `${vehicle.make} ${vehicle.model}${vehicle.trim ? ' ' + vehicle.trim : ''} (${vehicle.year})` : null
+      vehicleSlug = vehicle?.slug || null
     }
 
     const lead = await prisma.lead.create({
@@ -98,6 +103,8 @@ export async function POST(req: Request) {
         contactEmail,
         contactPhone,
         contactName,
+        vehicleTitle,
+        vehicleSlug,
       }).catch(console.error)
     }
 
@@ -111,33 +118,34 @@ export async function POST(req: Request) {
 async function sendLeadEmail(
   leadId: string,
   data: { type: string; name: string; email: string; phone?: string; message?: string; vehicleId?: string },
-  contact: { contactEmail: string | null; contactPhone: string | null; contactName: string | null }
+  contact: { contactEmail: string | null; contactPhone: string | null; contactName: string | null; vehicleTitle: string | null; vehicleSlug: string | null }
 ) {
   const { Resend } = await import('resend')
   const resend = new Resend(process.env.RESEND_API_KEY)
 
-  // Wyślij na email handlowca jeśli ustawiony, w przeciwnym razie na globalny
   const toEmail = contact.contactEmail || process.env.DEALER_EMAIL || 'kontakt@dealer.pl'
-
   const typeLabel = data.type === 'test_drive' ? 'Jazda próbna' : 'Zapytanie o pojazd'
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || ''
+  const vehicleUrl = contact.vehicleSlug ? `${siteUrl}/ogloszenie/${contact.vehicleSlug}` : null
 
   await resend.emails.send({
     from: process.env.EMAIL_FROM || 'noreply@dealer.pl',
     to: toEmail,
     replyTo: data.email,
-    subject: `${typeLabel} od ${data.name}`,
+    subject: `${typeLabel}: ${contact.vehicleTitle || data.vehicleId || '—'} — od ${data.name}`,
     text: [
       `Typ: ${typeLabel}`,
+      ``,
+      `--- Ogłoszenie ---`,
+      contact.vehicleTitle ? `Pojazd: ${contact.vehicleTitle}` : '',
+      vehicleUrl ? `Link: ${vehicleUrl}` : (data.vehicleId ? `ID pojazdu: ${data.vehicleId}` : ''),
+      contact.contactName ? `Handlowiec: ${contact.contactName}` : '',
       ``,
       `--- Dane klienta ---`,
       `Imię: ${data.name}`,
       `Email: ${data.email}`,
       `Telefon: ${data.phone || '—'}`,
       `Wiadomość: ${data.message || '—'}`,
-      ``,
-      `--- Ogłoszenie ---`,
-      `ID pojazdu: ${data.vehicleId || '—'}`,
-      contact.contactName ? `Handlowiec: ${contact.contactName}` : '',
       ``,
       `Lead ID: ${leadId}`,
     ].filter(Boolean).join('\n'),

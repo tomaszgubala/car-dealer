@@ -184,6 +184,7 @@ export default async function VehiclePage({ params }: PageProps) {
               <LeadForm
                 vehicleId={v.id}
                 vehicleTitle={title}
+                vehicleSlug={v.slug}
                 dealerPhone={dealerPhone}
                 dealerEmail={dealerEmail}
                 contactName={v.contactName || undefined}

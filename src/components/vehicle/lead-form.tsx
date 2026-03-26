@@ -7,12 +7,13 @@ import { cn } from '@/lib/utils'
 interface LeadFormProps {
   vehicleId: string
   vehicleTitle: string
+  vehicleSlug: string
   dealerPhone?: string
   dealerEmail?: string
   contactName?: string
 }
 
-export function LeadForm({ vehicleId, vehicleTitle, dealerPhone, dealerEmail, contactName }: LeadFormProps) {
+export function LeadForm({ vehicleId, vehicleTitle, vehicleSlug, dealerPhone, dealerEmail, contactName }: LeadFormProps) {
   const [type, setType] = useState<'inquiry' | 'test_drive'>('inquiry')
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -91,7 +92,7 @@ export function LeadForm({ vehicleId, vehicleTitle, dealerPhone, dealerEmail, co
         )}
         {dealerEmail && (
           <a
-            href={`mailto:${dealerEmail}?subject=Zapytanie: ${encodeURIComponent(vehicleTitle)}`}
+            href={`mailto:${dealerEmail}?subject=${encodeURIComponent(`Zapytanie: ${vehicleTitle}`)}&body=${encodeURIComponent(`Dzień dobry,\n\nJestem zainteresowany/a pojazdem: ${vehicleTitle}\n${typeof window !== 'undefined' ? window.location.origin : ''}/ogloszenie/${vehicleSlug}\n\n`)}`}
             onClick={() => trackCTA(vehicleId, 'email')}
             className="flex items-center justify-center gap-2 w-full py-3 border-2 border-gray-200 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-colors"
           >
