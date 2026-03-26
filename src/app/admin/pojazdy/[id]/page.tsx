@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { VehicleForm } from '@/components/admin/vehicle-form'
 import Link from 'next/link'
@@ -10,8 +11,25 @@ interface PageProps { params: { id: string } }
 export const metadata: Metadata = { title: 'Edytuj ogłoszenie' }
 
 export default async function EditVehiclePage({ params }: PageProps) {
-  const vehicle = await prisma.vehicle.findUnique({ where: { id: params.id } })
+  const [vehicle, session] = await Promise.all([
+    prisma.vehicle.findUnique({ where: { id: params.id } }),
+    auth(),
+  ])
   if (!vehicle) notFound()
+
+  let userPhone = null
+  let userEmail = null
+  let userName = null
+
+  if (session?.user?.id) {
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { phone: true, name: true, email: true },
+    })
+    userPhone = user?.phone || null
+    userEmail = user?.email || null
+    userName = user?.name || null
+  }
 
   return (
     <div className="space-y-6">
@@ -53,7 +71,14 @@ export default async function EditVehiclePage({ params }: PageProps) {
           videos: vehicle.videos,
           features: vehicle.features,
           promoted: vehicle.promoted,
+          contactPhone: vehicle.contactPhone,
+          contactEmail: vehicle.contactEmail,
+          contactName: vehicle.contactName,
+          specificationUrl: vehicle.specificationUrl,
         }}
+        userPhone={userPhone}
+        userEmail={userEmail}
+        userName={userName}
       />
     </div>
   )
