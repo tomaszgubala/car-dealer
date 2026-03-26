@@ -160,6 +160,7 @@ export function VehicleForm({ initialData, userPhone, userEmail, userName }: Veh
       contactPhone: getStr('contactPhone') || null,
       contactName: getStr('contactName') || null,
       contactEmail: getStr('contactEmail') || null,
+      specificationUrl: specPdfUrl || null,
     }
 
     try {
@@ -441,6 +442,33 @@ export function VehicleForm({ initialData, userPhone, userEmail, userName }: Veh
             onChange={(e) => setVideos(e.target.value)}
             placeholder="https://www.youtube.com/watch?v=..."
           />
+        </div>
+
+        {/* Specification PDF */}
+        <div>
+          <label className={lbl}>Specyfikacja techniczna (PDF)</label>
+          <div className="flex items-center gap-3">
+            <label className={`flex items-center gap-2 px-4 py-2.5 border-2 border-dashed rounded-xl text-sm cursor-pointer transition-colors ${uploadingPdf ? 'border-gray-200 text-gray-400' : 'border-gray-200 text-gray-500 hover:border-blue-400 hover:text-blue-600'}`}>
+              <Upload className="w-4 h-4" />
+              {uploadingPdf ? 'Wgrywanie...' : specPdfUrl ? 'Zmień PDF' : 'Wgraj PDF'}
+              <input
+                type="file"
+                accept="application/pdf,.pdf"
+                className="hidden"
+                disabled={uploadingPdf}
+                onChange={(e) => e.target.files?.[0] && uploadPdf(e.target.files[0])}
+              />
+            </label>
+            {specPdfUrl && (
+              <div className="flex items-center gap-2 text-sm text-green-700">
+                <svg className="w-4 h-4 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M4 18h12V6l-4-4H4v16zm8-14l2 2h-2V4z"/></svg>
+                <a href={specPdfUrl} target="_blank" rel="noopener noreferrer" className="underline truncate max-w-[200px]">Podgląd PDF</a>
+                <button type="button" onClick={() => setSpecPdfUrl(null)} className="text-gray-400 hover:text-red-500 ml-1">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Features */}

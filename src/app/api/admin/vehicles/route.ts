@@ -37,6 +37,7 @@ const schema = z.object({
   contactPhone: z.string().max(20).optional().nullable(),
   contactName: z.string().max(100).optional().nullable(),
   contactEmail: z.string().email().max(200).optional().nullable(),
+  specificationUrl: z.string().url().max(500).optional().nullable(),
 })
 
 async function checkAuth() {

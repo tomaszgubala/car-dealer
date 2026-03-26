@@ -36,6 +36,7 @@ const patchSchema = z.object({
   contactPhone: z.string().max(20).nullable().optional(),
   contactName: z.string().max(100).nullable().optional(),
   contactEmail: z.string().email().max(200).nullable().optional(),
+  specificationUrl: z.string().url().max(500).nullable().optional(),
 })
 
 interface Params { params: { id: string } }
